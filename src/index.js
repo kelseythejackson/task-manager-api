@@ -15,9 +15,9 @@ const port = process.env.PORT || 3000
 //   }
 // })
 
-app.use((req, res, next) => {
-  res.status(503).send(`We're currently down for maintenence`)
-})
+// app.use((req, res, next) => {
+//   res.status(503).send(`We're currently down for maintenence`)
+// })
 
 app.use(express.json())
 
@@ -31,15 +31,3 @@ app.listen(port, () => {
   console.log(`App listening on port ${port}!`);
 });
 
-const jwt = require('jsonwebtoken')
-
-const myFunction = async () => {
-  const token = jwt.sign({ _id: 'abc123'}, 'thisisastring', { expiresIn: '7 days' })
-  console.log(token)
-
-  const data = jwt.verify(token, 'thisisastring')
-  console.log(data)
-}
-
-
-myFunction()
