@@ -1,4 +1,8 @@
 const express = require('express')
+const multer = require('multer')
+const upload  = multer({
+  dest: 'avatars'
+})
 const auth = require('../middleware/auth')
 const User = require('../models/user')
 
@@ -58,6 +62,10 @@ router.post('/logoutAll', auth, async (req, res) => {
 
 router.get('/me', auth, async (req, res) => {
   res.send(req.user)
+})
+
+router.post('/me/avatar', upload.single('avatar'), async (req, res) => {
+  res.send()
 })
 
 
