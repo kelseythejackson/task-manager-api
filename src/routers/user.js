@@ -1,7 +1,16 @@
 const express = require('express')
 const multer = require('multer')
-const upload  = multer({
-  dest: 'avatars'
+const upload = multer({
+  dest: 'avatars',
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      return cb(new Error('Please upload a jpg or png'))
+    }
+    cb(undefined, true)
+  }
 })
 const auth = require('../middleware/auth')
 const User = require('../models/user')
@@ -14,7 +23,10 @@ router.post('/', async (req, res) => {
   try {
     await user.save()
     const token = await user.generateAuthToken()
-    res.status(201).send({user, token})
+    res.status(201).send({
+      user,
+      token
+    })
   } catch (e) {
     res.status(400).send(e)
   }
@@ -22,15 +34,21 @@ router.post('/', async (req, res) => {
 
 
 router.post('/login', async (req, res) => {
-  const {email, password} = req.body
+  const {
+    email,
+    password
+  } = req.body
   try {
     const user = await User.findByCredentials(email, password)
     const token = await user.generateAuthToken()
-    res.send({ user, token });
+    res.send({
+      user,
+      token
+    });
   } catch (e) {
     res.status(400).send()
   }
-  
+
 })
 
 router.post('/logout', auth, async (req, res) => {
@@ -48,16 +66,16 @@ router.post('/logout', auth, async (req, res) => {
 })
 
 router.post('/logoutAll', auth, async (req, res) => {
- try {
-   req.user.tokens = []
+  try {
+    req.user.tokens = []
 
-   await req.user.save()
+    await req.user.save()
 
-   res.send()
+    res.send()
 
- } catch (e) {
-   res.status(500).send()
- }
+  } catch (e) {
+    res.status(500).send()
+  }
 })
 
 router.get('/me', auth, async (req, res) => {
@@ -78,14 +96,16 @@ router.patch('/me', auth, async (req, res) => {
   })
 
   if (!isValidOperation) {
-    return res.status(400).send({ error: 'Invalid updates'})
+    return res.status(400).send({
+      error: 'Invalid updates'
+    })
   }
-  
+
   try {
     updates.forEach(update => req.user[update] = req.body[update])
     await req.user.save()
-    
-    
+
+
     res.send(req.user)
   } catch (e) {
     res.status(400).send(e)
@@ -94,7 +114,7 @@ router.patch('/me', auth, async (req, res) => {
 
 router.delete('/me', auth, async (req, res) => {
   try {
-   
+
     await req.user.remove()
     res.send(req.user)
   } catch (e) {
