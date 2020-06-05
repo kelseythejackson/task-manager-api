@@ -15,6 +15,7 @@ const upload = multer({
 const sharp = require('sharp')
 const auth = require('../middleware/auth')
 const User = require('../models/user')
+const { sendWelcomeEmail, sendGoodbyeEmail } = require('../emails/account')
 
 const router = new express.Router()
 
@@ -23,6 +24,7 @@ router.post('/', async (req, res) => {
 
   try {
     await user.save()
+    sendWelcomeEmail(user.email, user.name)
     const token = await user.generateAuthToken()
     res.status(201).send({
       user,
@@ -127,6 +129,7 @@ router.delete('/me', auth, async (req, res) => {
   try {
 
     await req.user.remove()
+    sendGoodbyeEmail(req.user.email, req.user.name)
     res.send(req.user)
   } catch (e) {
     res.status(500).send()
