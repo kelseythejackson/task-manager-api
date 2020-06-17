@@ -31,7 +31,7 @@ router.post('/', async (req, res) => {
       token
     })
   } catch (e) {
-    res.status(400).send(e)
+    res.status(400).send({error: 'try again...'})
   }
 })
 
